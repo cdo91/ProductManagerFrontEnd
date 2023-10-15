@@ -1,0 +1,35 @@
+.link-to-adminmain {
+    text-decoration: none; /* Remove underlines */
+    color: rgb(80, 80, 80); /* Use the default text color */
+    transition: background-color 0.3s ease;
+}
+
+.link-to-adminmain:hover {
+    color: #004c9c;
+}
+
+.error {
+    color: #f53535; /* Bright red color */
+    font-size: 12px;
+    text-align: start;
+    width: 280px;
+    margin: 3px auto;
+    /* margin-bottom: 0px  */
+    /* Add any other styles you want for error messages */
+}
+
+/* Add this to your CSS file */
+.alternate-row:nth-child(even) {
+    background-color: rgb(255, 255, 255); /* Gray background for even rows */
+  }
+  
+  .alternate-row:nth-child(odd) {
+    background-color: rgb(226, 226, 226); /* White background for odd rows */
+  }
+
+.tablehead {
+    background-color: #1877c5;
+    color: #fff;
+}
+  
+

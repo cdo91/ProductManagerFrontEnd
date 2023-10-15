@@ -1,0 +1,30 @@
+/* Grundstil för desktop */
+.search-product-container {
+    width: 50%;
+    margin: 5px auto;
+  }
+  
+  /* Mediafråga för större skärmar, t.ex. tablets */
+  @media (min-width: 768px) {
+    .search-product-container {
+      width: 70%; /* Justera bredden för tablets */
+    }
+  }
+  
+  /* Mediafråga för mindre skärmar, t.ex. mobiler */
+  @media (max-width: 480px) {
+    .search-product-container {
+      width: 90%; /* Justera bredden för mobiler */
+    }
+  }
+  
+  /* Du kan lägga till fler mediafrågor och anpassa efter behov */
+
+  .updateIcon:hover {
+    color: #004c9c;
+  }
+
+  .deleteIcon:hover {
+    color: #ca1414;
+  }
+  
