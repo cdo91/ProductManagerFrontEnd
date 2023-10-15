@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/ProdutManagerFrontEnd/static/css/main.ba6e99c8.css",
-    "main.js": "/ProdutManagerFrontEnd/static/js/main.24452765.js",
-    "static/js/787.bc7d429a.chunk.js": "/ProdutManagerFrontEnd/static/js/787.bc7d429a.chunk.js",
-    "index.html": "/ProdutManagerFrontEnd/index.html",
-    "main.ba6e99c8.css.map": "/ProdutManagerFrontEnd/static/css/main.ba6e99c8.css.map",
-    "main.24452765.js.map": "/ProdutManagerFrontEnd/static/js/main.24452765.js.map",
-    "787.bc7d429a.chunk.js.map": "/ProdutManagerFrontEnd/static/js/787.bc7d429a.chunk.js.map"
+    "main.css": "/ProductManagerFrontEnd/static/css/main.ba6e99c8.css",
+    "main.js": "/ProductManagerFrontEnd/static/js/main.09229814.js",
+    "static/js/787.bc7d429a.chunk.js": "/ProductManagerFrontEnd/static/js/787.bc7d429a.chunk.js",
+    "index.html": "/ProductManagerFrontEnd/index.html",
+    "main.ba6e99c8.css.map": "/ProductManagerFrontEnd/static/css/main.ba6e99c8.css.map",
+    "main.09229814.js.map": "/ProductManagerFrontEnd/static/js/main.09229814.js.map",
+    "787.bc7d429a.chunk.js.map": "/ProductManagerFrontEnd/static/js/787.bc7d429a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.ba6e99c8.css",
-    "static/js/main.24452765.js"
+    "static/js/main.09229814.js"
   ]
 }
