@@ -1,118 +1,78 @@
 import React, { useState } from 'react';
 import {
-  Container,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
+  Table, TableBody, TableCell,TableContainer, TableHead,
+  TableRow, Paper, Button, Dialog, DialogContent,
 } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Check, Clear } from '@mui/icons-material';
+import SearchProduct from './SearchProduct';
 
 const DeleteProduct = () => {
-  const location = useLocation();
-  const selectedProduct = location.state?.selectedProduct;
 
-  const navigate = useNavigate();
-  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] = useState(true);
-  const [isProductDeletedMessageVisible, setIsProductDeletedMessageVisible] = useState(false);
-  const token = localStorage.getItem('token');  
-  
-  const fetchAndLogProducts = async () => {
-    try {
-      const response = await fetch('https://localhost:1000/products', { 
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-      },
-      });
-      if (response.ok) {
-        const products = await response.json();
-        console.log('Products:', products);
-      } else {
-        console.error('Failed to fetch products.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+  const location = useLocation(); // Hämtar location från react-router-dom som används för att skicka med data mellan komponenter 
+  const selectedProduct = location.state?.selectedProduct; // Sparar selectedProduct i variabeln selectedProduct som skickas med från komponenten SearchProduct
+
+  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] = useState(true); // Sätter typen till boolean
+  const [isProductDeletedMessageVisible, setIsProductDeletedMessageVisible] = useState(false); // Sätter typen till boolean
+  const token = localStorage.getItem('token'); // Hämtar token från localStorage och lägger in i variabeln token som sedan används i fetchen nedan för att kunna hämta data från API:et
+  const navigate = useNavigate(); // Hämtar navigate från react-router-dom som används för att navigera mellan komponenter
 
   const handleConfirmYes = async () => {
-    if (!selectedProduct) {
-      // Handle the case where selectedProduct is not available
-      console.error('No product selected for deletion');
-      return;
-    }
-
-    const { sku } = selectedProduct;
-    const deleted = await deleteProduct(sku);
-
-    if (deleted) {
-      setIsProductDeletedMessageVisible(true);
-      setIsDeleteConfirmationVisible(false);
-
-      setTimeout(() => {
-        fetchAndLogProducts();
-        setIsProductDeletedMessageVisible(false);
-        navigate('/Main');
-      }, 2000);
-    } else {
-      // Handle the case where the deletion failed
-      console.error('Product deletion failed');
+    try {
+      const { sku } = selectedProduct; // Sparar sku från selectedProduct i variabeln sku
+      const response = await fetch(`https://localhost:1000/products/${sku}`, { // Hämtar data från API:et
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json', // Sätter Content-Type till application/json
+          'Authorization': `Bearer ${token}`, // Lägger in token i header för att kunna hämta data från API:et
+        },
+      });
+  
+      if (response.ok) { // Om det går att hämta data från API:et så körs koden nedan
+        setIsProductDeletedMessageVisible(true); // Visar meddelande om att produkten är raderad
+        setIsDeleteConfirmationVisible(false); // Döljer bekräftelseprompten
+        setTimeout(() => {
+          setIsProductDeletedMessageVisible(false); // Döljer meddelandet om att produkten är raderad
+          navigate('/Main'); // Navigerar tillbaka till Main
+        }, 2000); // Sätter en timer på 2 sekunder
+      } else {
+        console.error('Borttagning av produkt misslyckades');
+      }
+    } catch (error) {
+      console.error('error:', error);
     }
   };
 
   const handleConfirmNo = () => {
-    setIsDeleteConfirmationVisible(false); // Hide confirmation prompt
-    navigate('/SearchProduct');
+    setIsDeleteConfirmationVisible(false); // Döljer bekräftelseprompten
+    navigate('/SearchProduct'); // Navigerar tillbaka till SearchProduct
   };
-
-  const deleteProduct = async (sku: string) => {
-    try {
-        const response = await fetch(`https://localhost:1000/products/${sku}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-            // Product was successfully deleted
-            return true;
-        } else {
-            // Handle the case where the deletion failed
-            return false;
-        }
-        } catch (error) {
-        console.error('An error occurred while deleting the product:', error);
-        return false;
-        }
-    };
 
   return (
     <>
+      <SearchProduct/>
       {isDeleteConfirmationVisible && (
-        <Container
-          style={{
-            backgroundColor: '#d6d5d5',
-            boxShadow: '3px 3px 4px rgba(68, 68, 68, 0.5)',
-            padding: '30px 0 30px 0',
-            width: '50%',
-            borderRadius: 5,
-            margin: '30px auto',
-            display: 'flex', 
-            justifyContent: 'center', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            textAlign: 'center'
-          }}
-          className="search-product-container"
+        <Dialog open={isDeleteConfirmationVisible} 
+          onClose={handleConfirmNo} 
+          maxWidth="md" 
+          fullWidth 
         >
-          
+          <DialogContent
+            style={{
+              backgroundColor: '#d6d5d5',
+              padding: '30px 0 30px 0',
+              borderRadius: 5,
+              margin: '30px auto',
+              boxShadow: '3px 3px 4px rgba(68, 68, 68, 0.5)',
+              display: 'flex',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              width: '93%',
+              fontWeight: 600,
+            }}
+          >
             <p>Radera produkt?</p>
             <TableContainer
               component={Paper}
@@ -126,7 +86,7 @@ const DeleteProduct = () => {
             >
               <Table>
                 <TableHead>
-                  <TableRow className='tablehead'>
+                  <TableRow className="tablehead">
                     <TableCell style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Namn</TableCell>
                     <TableCell style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>SKU</TableCell>
                     <TableCell style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Beskrivning</TableCell>
@@ -135,7 +95,7 @@ const DeleteProduct = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {selectedProduct && ( // Check if selectedProduct is available
+                  {selectedProduct && (
                     <TableRow key={selectedProduct.id}>
                       <TableCell style={{ textAlign: 'center' }}>{selectedProduct.name}</TableCell>
                       <TableCell style={{ textAlign: 'center' }}>{selectedProduct.sku}</TableCell>
@@ -149,60 +109,54 @@ const DeleteProduct = () => {
             </TableContainer>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <Button
-              color='primary'
-              className="confirmation-prompt-button"
-              onClick={handleConfirmYes}
-              variant='contained'
-              style={{
-                marginRight: 5,
-                fontWeight: 'bold',
-                textTransform: 'none',
-                letterSpacing: '0px',
-                display: 'inline-block'
-              }}
-            >
-              Ja
-            </Button>
-            <Button
-              color="error"
-              className="confirmation-prompt-button"
-              onClick={handleConfirmNo}
-              variant='contained'
-              style={{
-                marginLeft: 5,
-                fontWeight: 'bold',
-                textTransform: 'none',
-                letterSpacing: '0px',
-                display: 'inline-block'
-              }}
-            >
-              Nej
-            </Button>
+                color="primary"
+                className="confirmation-prompt-button"
+                onClick={handleConfirmYes}
+                variant="contained"
+                style={{ marginRight: 5, borderRadius: '10rem' }}
+              >
+                <Check />
+              </Button>
+              <Button
+                color="error"
+                className="confirmation-prompt-button"
+                onClick={handleConfirmNo}
+                variant="contained"
+                style={{ borderRadius: '10rem' }}
+              >
+                <Clear />
+              </Button>
             </div>
-        </Container>
+          </DialogContent>
+        </Dialog>
       )}
       {isProductDeletedMessageVisible && (
-        <Container
-          style={{
-            backgroundColor: '#2979ff',
-            boxShadow: '3px 3px 4px rgba(68, 68, 68, 0.5)',
-            padding: '30px 0 30px 0',
-            width: '30%',
-            borderRadius: 5,
-            margin: '30px auto',
-            fontWeight: 600,
-            color: 'white',
-            textAlign: 'center'
-          }}
-          className="search-product-container"
-        >
-          <div>
+        <Dialog open={isProductDeletedMessageVisible} onClose={handleConfirmNo} maxWidth="sm" fullWidth >
+          <DialogContent
+            style={{
+              backgroundColor: '#2979ff',
+              padding: '30px 0 30px 0',
+              borderRadius: 5,
+              margin: '30px auto',
+              boxShadow: '3px 3px 4px rgba(68, 68, 68, 0.5)',
+              display: 'flex',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              width: '90%',
+              fontWeight: 600,
+              color: '#fff',
+            }}
+          >
             <p>Produkt raderad</p>
-          </div>
-        </Container>
+          </DialogContent>
+        </Dialog>
       )}
     </>
   );
 };
 
 export default DeleteProduct;
+
+

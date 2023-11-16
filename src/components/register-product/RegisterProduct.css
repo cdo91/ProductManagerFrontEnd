@@ -20,16 +20,26 @@
 
 /* Add this to your CSS file */
 .alternate-row:nth-child(even) {
-    background-color: rgb(255, 255, 255); /* Gray background for even rows */
+    background-color: rgb(226, 226, 226); /* Gray background for even rows */
   }
   
   .alternate-row:nth-child(odd) {
-    background-color: rgb(226, 226, 226); /* White background for odd rows */
+    background-color: rgb(255, 255, 255); /* White background for odd rows */
   }
 
 .tablehead {
     background-color: #1877c5;
     color: #fff;
+    text-align: center;
+    font-weight: bold;
+}
+
+.asd{
+    background-color: #97c8f0;
+}
+
+.asd:hover{
+    background-color: #004c9c;
 }
   
 
