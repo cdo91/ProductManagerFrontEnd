@@ -96,7 +96,7 @@ const AddProductToCategory = () => {
       try {
         categories.sort((a: Category, b: Category) => a.id - b.id); // Sorterar kategorier efter id
         const response = await fetch(
-          "https://localhost:1000/categories/categories-only", // Fetchar kategorier från databasen
+          "https://app-productmanager-prod.azurewebsites.net/categories-only", // Fetchar kategorier från databasen
           {
             headers: {
               "Content-Type": "application/json", // Sätter Content-Type till application/json
@@ -153,7 +153,7 @@ const AddProductToCategory = () => {
 
       if (categoryId && productId) { // Om categoryId och productId finns
         const response = await fetch(
-          `https://localhost:1000/categories/${categoryId}/products/${productId}`, // Skickar categoryId och productId till API:et för att lägga till produkt till kategori
+          `https://app-productmanager-prod.azurewebsites.net/${categoryId}/products/${productId}`, // Skickar categoryId och productId till API:et för att lägga till produkt till kategori
           {
             method: "POST", // Metod för att lägga till produkt till kategori
             headers: {

@@ -83,7 +83,7 @@ const SearchProduct = () => {
     try {
       if (searchOption === "name") { // Om searchOption är name så körs koden nedan
         const response = await fetch(
-          `https://localhost:1000/products?name=${name}`, // Hämtar data från API:et
+          `https://app-productmanager-prod.azurewebsites.net/products?name=${name}`, // Hämtar data från API:et
           {
             headers: {
               "Content-Type": "application/json", // Sätter Content-Type till application/json
@@ -117,7 +117,7 @@ const SearchProduct = () => {
           setSearchResultByName(productsWithCategories); // Sätter produkterna i variabeln searchResultByName
         }
       } else if (searchOption === "sku") { // Om searchOption är sku så körs koden nedan
-        const response = await fetch(`https://localhost:1000/products/${sku}`, { // Hämtar data från API:et
+        const response = await fetch(`https://app-productmanager-prod.azurewebsites.net/products/${sku}`, { // Hämtar data från API:et
           headers: {
             "Content-Type": "application/json", // Sätter Content-Type till application/json
             Authorization: `Bearer ${token}`, // Lägger in token i header för att kunna hämta data från API:et

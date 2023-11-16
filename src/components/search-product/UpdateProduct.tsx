@@ -52,7 +52,7 @@ const UpdateProduct = () => {
   const handleConfirmYes = async (data: Product) => {
     try {
       const response = await fetch(
-        `https://localhost:1000/products/${data.sku}`, // Hämtar data från API:et
+        `https://app-productmanager-prod.azurewebsites.net/${data.sku}`, // Hämtar data från API:et
         {
           method: "PUT",
           headers: {

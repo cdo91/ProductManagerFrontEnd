@@ -42,7 +42,7 @@ const AddCategory = () => {
 
   const handleConfirmYes = async (data: Category) => {
     try {
-      const response = await fetch("https://localhost:1000/categories", { // Skickar formulärdata till API:et
+      const response = await fetch("https://app-productmanager-prod.azurewebsites.net/categories", { // Skickar formulärdata till API:et
         method: "POST",
         headers: {
           "Content-Type": "application/json",

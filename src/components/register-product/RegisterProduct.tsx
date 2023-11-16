@@ -51,7 +51,7 @@ const RegisterProduct = () => {
 
   const handleConfirmYes = async (data: Product) => {
     try {
-      const response = await fetch("https://localhost:1000/products", { // Skickar data till API:et
+      const response = await fetch("https://app-productmanager-prod.azurewebsites.net/products", { // Skickar data till API:et
         method: "POST",
         headers: {
           "Content-Type": "application/json", // Sätter Content-Type till application/json

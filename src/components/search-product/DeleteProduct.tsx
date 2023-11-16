@@ -20,7 +20,7 @@ const DeleteProduct = () => {
   const handleConfirmYes = async () => {
     try {
       const { sku } = selectedProduct; // Sparar sku från selectedProduct i variabeln sku
-      const response = await fetch(`https://localhost:1000/products/${sku}`, { // Hämtar data från API:et
+      const response = await fetch(`https://app-productmanager-prod.azurewebsites.net/${sku}`, { // Hämtar data från API:et
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json', // Sätter Content-Type till application/json

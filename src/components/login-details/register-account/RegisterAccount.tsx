@@ -69,7 +69,7 @@ const RegisterAccount = () => {
         data.birthDate = null; // Om birthDate är null så sätts det till null
       }
 
-      const response = await fetch("https://localhost:1000/login/register-account", { // Skickar datan till API:et
+      const response = await fetch("https://app-productmanager-prod.azurewebsites.net/login/register-account", { // Skickar datan till API:et
         method: "POST",
         headers: {
           "Content-Type": "application/json", // Sätter Content-Type till application/json
