@@ -1,6 +1,6 @@
 // App.tsx
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { HashRouter as Router, Route, Routes } from 'react-router-dom';
 import LoginDetails from './components/login-details/sign-in/LoginDetails';
 import Main from './components/main/Main';
 import RegisterProduct from './components/register-product/RegisterProduct';
@@ -13,21 +13,13 @@ import ListCategories from './components/list-categories/ListCategories';
 import RegisterAccount from './components/login-details/register-account/RegisterAccount';
 import { Button } from '@mui/material';
 
-
 function App() {
-
-  // State för token som används för att avgöra om användaren är inloggad eller inte. Sätts till null om användaren inte är inloggad och sätts till 
-  // token om användaren är inloggad och token finns i localstorage 
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-  
-  // Denna useEffect körs när sidan laddas och sätter token i state till token som finns i localstorage om det finns något där för att direkt uppdatera 
-  //sidan om användaren är inloggad
-  useEffect(() => { 
+
+  useEffect(() => {
     setToken(localStorage.getItem('token'));
   }, []);
 
-  // Denna funktionen fungerar som en callback som skickas till LoginDetails.tsx och körs därifrån när användaren loggar in och skickar tillbaka ett 
-  //token som sätts i localstorage och i state här i App.tsx
   const handleLogin = (newToken: string) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
@@ -39,7 +31,7 @@ function App() {
 
   return (
     <div className="App">
-      <BrowserRouter basename='ProductManagerFrontEnd'>
+      <Router>
         <Routes>
           <Route
             path="/"
@@ -55,7 +47,7 @@ function App() {
           {token && <Route path="/AddProductToCategory" element={<AddProductToCategory />} />}
           {token && <Route path="/ListCategories" element={<ListCategories />} />}
         </Routes>
-      </BrowserRouter>
+      </Router>
       <Button
         variant="contained"
         color="error"
@@ -71,7 +63,6 @@ function App() {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center'
-          
         }}
       >
         Ta bort token
