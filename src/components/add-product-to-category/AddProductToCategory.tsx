@@ -153,7 +153,7 @@ const AddProductToCategory = () => {
 
       if (categoryId && productId) { // Om categoryId och productId finns
         const response = await fetch(
-          `https://app-productmanager-prod.azurewebsites.net/${categoryId}/products/${productId}`, // Skickar categoryId och productId till API:et för att lägga till produkt till kategori
+          `https://app-productmanager-prod.azurewebsites.net/categories/${categoryId}/products/${productId}`, // Skickar categoryId och productId till API:et för att lägga till produkt till kategori
           {
             method: "POST", // Metod för att lägga till produkt till kategori
             headers: {
