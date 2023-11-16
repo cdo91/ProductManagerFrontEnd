@@ -64,7 +64,7 @@ const SearchProduct = () => {
   useEffect(() => {
     const fetchCategoriesAndProducts = async () => {
       try {
-        const response = await fetch("https://localhost:1000/categories", { // Hämtar data från API:et
+        const response = await fetch("https://app-productmanager-prod.azurewebsites.net/categories", { // Hämtar data från API:et
           headers: {
             Authorization: `Bearer ${token}`, // Lägger in token i header för att kunna hämta data från API:et
           },

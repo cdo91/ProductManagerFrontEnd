@@ -70,7 +70,7 @@ const AddProductToCategory = () => {
   const onSubmit = async (data: SearchFormInputs) => {
     const { sku } = data;
     try {
-      const response = await fetch(`https://localhost:1000/products/${sku}`, { // Fetchar produkten från databasen med hjälp av sku
+      const response = await fetch(`https://app-productmanager-prod.azurewebsites.net/products/${sku}`, { // Fetchar produkten från databasen med hjälp av sku
         headers: {
           "Content-Type": "application/json", // Sätter Content-Type till application/json
           Authorization: `Bearer ${token}`, // Sätter Authorization till token
