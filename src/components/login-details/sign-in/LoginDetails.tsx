@@ -275,6 +275,17 @@ const LoginDetails: React.FC<LoginDetailsProps> = ({ onLogin }) => {
           )}
         </form>
       </div>
+      <div style={{textAlign: 'center'}}>
+        <h4>
+          Profiles stored in the database:
+        </h4>
+          <p style={{fontSize: '12px'}}>
+            Username: john.doe, Password: john (Admin User)
+          </p>
+          <p style={{fontSize: '12px'}}>
+            Username: jane.doe, Password: jane (Regular User)
+          </p>
+      </div>
     </>
   );  
 };
