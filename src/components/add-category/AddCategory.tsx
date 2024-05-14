@@ -9,74 +9,72 @@ import {
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import { Check, Clear } from "@mui/icons-material";
+import { CategoryProps } from "./AddCategory.types";
 
-interface Category {
-  name: string;
-}
 
 const AddCategory = () => {
   const {
-    handleSubmit, // För att kunna skicka formuläret
-    control, // För att kunna använda react-hook-form med MUI
-    formState: { errors }, // För att kunna visa felmeddelanden
-    reset, // Återställer formuläret
-  } = useForm<Category>(); // Typ av formulärdata
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm<CategoryProps>();
 
-  const navigate = useNavigate(); // För att kunna navigera till en annan sida
-  const [isRegisterCategoryVisible, setIsRegisterCategoryVisible] = useState(true); // Visar registreringsformuläret
-  const [isConfirmationPromptVisible, setIsConfirmationPromptVisible] = useState(false); // Visar bekräftelseprompten
-  const [isCategorySavedMessageVisible, setIsCategorySavedMessageVisible] = useState(false); // Visar bekräftelsemeddelandet
-  const [formData, setFormData] = useState<Category | null>(null); // Formulärdata som ska skickas till API:et
-  const [errorName, setErrorName] = useState<string | null>(null); // Felmeddelande för namn
-  const [errorUnauthorized, setErrorUnauthorized] = useState<string | null>(null); // Felmeddelande för att användaren inte är inloggad
-  const token = localStorage.getItem("token"); // Hämtar token från local storage för att få tillgång till API:et
+  const navigate = useNavigate();
+  const [isRegisterCategoryVisible, setIsRegisterCategoryVisible] = useState(true);
+  const [isConfirmationPromptVisible, setIsConfirmationPromptVisible] = useState(false);
+  const [isCategorySavedMessageVisible, setIsCategorySavedMessageVisible] = useState(false);
+  const [formData, setFormData] = useState<CategoryProps | null>(null);
+  const [errorName, setErrorName] = useState<string | null>(null);
+  const [errorUnauthorized, setErrorUnauthorized] = useState<string | null>(null);
+  const token = localStorage.getItem("token");
 
-  const clearError = () => { // Rensar felmeddelandet för namn
+  const clearError = () => {
     setErrorName(null);
   };
 
-  const onSubmit = async (data: Category) => { // Skickar formulärdata till API:et
-    setIsConfirmationPromptVisible(true); // Visar bekräftelseprompten
-    setFormData(data); // Sparar formulärdata i formData
+  const onSubmit = async (data: CategoryProps) => {
+    setIsConfirmationPromptVisible(true);
+    setFormData(data);
   };
 
-  const handleConfirmYes = async (data: Category) => {
+  const handleConfirmYes = async (data: CategoryProps) => {
     try {
-      const response = await fetch("https://app-productmanager-prod.azurewebsites.net/categories", { // Skickar formulärdata till API:et
+      const response = await fetch("https://app-productmanager.azurewebsites.net/categories", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Skickar med token för att få tillgång till API:et
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(data), // Formulärdata som ska skickas till API:et
+        body: JSON.stringify(data),
       });
 
-      if (response.ok) { // Om kategorin skapades
-        reset(); // Rensar formuläret
-        setIsConfirmationPromptVisible(false); // Gömmer bekräftelseprompten
-        setIsCategorySavedMessageVisible(true); // Visar bekräftelsemeddelandet
-        setFormData(data); // Sparar formulärdata i formData
+      if (response.ok) {
+        reset();
+        setIsConfirmationPromptVisible(false);
+        setIsCategorySavedMessageVisible(true);
+        setFormData(data);
 
-        setTimeout(() => { // Timer för att visa bekräftelsemeddelandet
-          setIsCategorySavedMessageVisible(false); // Gömmer bekräftelsemeddelandet
-          navigate("/Main"); // Navigerar till Main
-        }, 2000); // Efter 2 sekunder
-      } else if (response.status === 400) { // Om Kategorin redan finns
-        setIsConfirmationPromptVisible(false); // Gömmer bekräftelseprompten
-        setIsRegisterCategoryVisible(true); // Visar registreringsformuläret
-        setErrorName("Namn finns redan"); // Visar felmeddelande för namn
+        setTimeout(() => {
+          setIsCategorySavedMessageVisible(false);
+          navigate("/Main");
+        }, 2000);
+      } else if (response.status === 400) {
+        setIsConfirmationPromptVisible(false);
+        setIsRegisterCategoryVisible(true);
+        setErrorName("Name already exists");
       }
-    } catch (error) { // Om något gick fel
-      setErrorUnauthorized("Ej behörighet för utförande "); // Visar felmeddelande för att användaren inte är inloggad
-      console.error("Error:", error); // Skriver ut felmeddelande i konsolen
-      setIsConfirmationPromptVisible(false); // Gömmer bekräftelseprompten
+    } catch (error) {
+      setErrorUnauthorized("Unauthorized to perform this action");
+      console.error("Error:", error);
+      setIsConfirmationPromptVisible(false);
     }
   };
 
   const handleConfirmNo = () => {
-    setIsConfirmationPromptVisible(false); // Gömmer bekräftelseprompten
-    setIsRegisterCategoryVisible(true); // Visar registreringsformuläret
-    reset(); // Rensar formuläret
+    setIsConfirmationPromptVisible(false);
+    setIsRegisterCategoryVisible(true);
+    reset();
   };
 
   return (
@@ -94,12 +92,12 @@ const AddCategory = () => {
                 name="name"
                 control={control}
                 defaultValue=""
-                rules={{ required: "Namn måste vara ifylld." }}
+                rules={{ required: "Name is required." }}
                 render={({ field }) => (
                   <>
                     <TextField
                       {...field}
-                      label={<span style={{ fontSize: "14px" }}>Namn</span>}
+                      label={<span style={{ fontSize: "14px" }}>Name</span>}
                       variant="outlined"
                       fullWidth
                       error={Boolean(errors.name) || Boolean(errorName)}
@@ -134,7 +132,7 @@ const AddCategory = () => {
                   letterSpacing: "0px",
                 }}
               >
-                <span>Registrera Kategori</span>
+                <span>Register Category</span>
               </Button>
             </div>
           </form>
@@ -164,7 +162,7 @@ const AddCategory = () => {
               fontWeight: 600,
             }}
           >
-            <span>Är detta korrekt?</span>
+            <span>Is this correct?</span>
             <TableContainer
               component={Paper}
               style={{
@@ -185,7 +183,7 @@ const AddCategory = () => {
                         textAlign: "center",
                       }}
                     >
-                      <span>Namn</span>
+                      <span>Name</span>
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -253,7 +251,7 @@ const AddCategory = () => {
               width: "90%",
             }}
           >
-            <span>Kategori sparad</span>
+            <span>Category Saved</span>
           </DialogContent>
         </Dialog>
       )}

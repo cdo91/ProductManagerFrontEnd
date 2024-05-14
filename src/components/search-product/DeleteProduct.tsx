@@ -9,34 +9,34 @@ import SearchProduct from './SearchProduct';
 
 const DeleteProduct = () => {
 
-  const location = useLocation(); // Hämtar location från react-router-dom som används för att skicka med data mellan komponenter 
-  const selectedProduct = location.state?.selectedProduct; // Sparar selectedProduct i variabeln selectedProduct som skickas med från komponenten SearchProduct
+  const location = useLocation();
+  const selectedProduct = location.state?.selectedProduct;
 
-  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] = useState(true); // Sätter typen till boolean
-  const [isProductDeletedMessageVisible, setIsProductDeletedMessageVisible] = useState(false); // Sätter typen till boolean
-  const token = localStorage.getItem('token'); // Hämtar token från localStorage och lägger in i variabeln token som sedan används i fetchen nedan för att kunna hämta data från API:et
-  const navigate = useNavigate(); // Hämtar navigate från react-router-dom som används för att navigera mellan komponenter
+  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] = useState(true);
+  const [isProductDeletedMessageVisible, setIsProductDeletedMessageVisible] = useState(false);
+  const token = localStorage.getItem('token');
+  const navigate = useNavigate();
 
   const handleConfirmYes = async () => {
     try {
-      const { sku } = selectedProduct; // Sparar sku från selectedProduct i variabeln sku
-      const response = await fetch(`https://app-productmanager-prod.azurewebsites.net/products/${sku}`, { // Hämtar data från API:et
+      const { sku } = selectedProduct;
+      const response = await fetch(`https://app-productmanager.azurewebsites.net/products/${sku}`, {
         method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json', // Sätter Content-Type till application/json
-          'Authorization': `Bearer ${token}`, // Lägger in token i header för att kunna hämta data från API:et
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
       });
   
-      if (response.ok) { // Om det går att hämta data från API:et så körs koden nedan
-        setIsProductDeletedMessageVisible(true); // Visar meddelande om att produkten är raderad
-        setIsDeleteConfirmationVisible(false); // Döljer bekräftelseprompten
+      if (response.ok) {
+        setIsProductDeletedMessageVisible(true);
+        setIsDeleteConfirmationVisible(false);
         setTimeout(() => {
-          setIsProductDeletedMessageVisible(false); // Döljer meddelandet om att produkten är raderad
-          navigate('/Main'); // Navigerar tillbaka till Main
-        }, 2000); // Sätter en timer på 2 sekunder
+          setIsProductDeletedMessageVisible(false);
+          navigate('/Main');
+        }, 2000);
       } else {
-        console.error('Borttagning av produkt misslyckades');
+        console.error('Product deletion failed');
       }
     } catch (error) {
       console.error('error:', error);
@@ -44,8 +44,8 @@ const DeleteProduct = () => {
   };
 
   const handleConfirmNo = () => {
-    setIsDeleteConfirmationVisible(false); // Döljer bekräftelseprompten
-    navigate('/SearchProduct'); // Navigerar tillbaka till SearchProduct
+    setIsDeleteConfirmationVisible(false);
+    navigate('/SearchProduct');
   };
 
   return (
@@ -73,7 +73,7 @@ const DeleteProduct = () => {
               fontWeight: 600,
             }}
           >
-            <p>Radera produkt?</p>
+            <p>Delete product?</p>
             <TableContainer
               component={Paper}
               style={{
@@ -87,11 +87,11 @@ const DeleteProduct = () => {
               <Table>
                 <TableHead>
                   <TableRow className="tablehead">
-                    <TableCell style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Namn</TableCell>
+                    <TableCell style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Name</TableCell>
                     <TableCell style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>SKU</TableCell>
-                    <TableCell style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Beskrivning</TableCell>
-                    <TableCell style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Bild (URL)</TableCell>
-                    <TableCell style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Pris</TableCell>
+                    <TableCell style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Description</TableCell>
+                    <TableCell style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Image (URL)</TableCell>
+                    <TableCell style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>Price</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -101,7 +101,7 @@ const DeleteProduct = () => {
                       <TableCell style={{ textAlign: 'center' }}>{selectedProduct.sku}</TableCell>
                       <TableCell style={{ textAlign: 'center' }}>{selectedProduct.description}</TableCell>
                       <TableCell style={{ textAlign: 'center' }}>{selectedProduct.imageUrl}</TableCell>
-                      <TableCell style={{ textAlign: 'center' }}>{selectedProduct.price} SEK</TableCell>
+                      <TableCell style={{ textAlign: 'center' }}>{selectedProduct.price} $</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
@@ -149,7 +149,7 @@ const DeleteProduct = () => {
               color: '#fff',
             }}
           >
-            <p>Produkt raderad</p>
+            <p>Product deleted</p>
           </DialogContent>
         </Dialog>
       )}
@@ -158,5 +158,3 @@ const DeleteProduct = () => {
 };
 
 export default DeleteProduct;
-
-

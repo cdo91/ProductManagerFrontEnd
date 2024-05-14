@@ -3,48 +3,44 @@ import { Link } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import jwt_decode from 'jwt-decode';
 import { Dialog, DialogContent } from '@mui/material';
-
-interface DecodedToken { // Skapar en interface för att kunna dekoda token
-  given_name: string;
-  family_name: string;
-}
+import { DecodedTokenProps } from './Main.types';
 
 const Main = () => {
-
-  const [firstName, setFirstName] = useState<string | null>(null); // Sätter typen till string eller null
-  const [lastName, setLastName] = useState<string | null>(null); // Sätter typen till string eller null
-  const [message, setMessage] = useState<string | null>(null); // Sätter typen till string eller null
-  const [usernameLoaded, setUsernameLoaded] = useState(false); // Sätter typen till boolean
-  const [messageShown, setMessageShown] = useState(localStorage.getItem('messageShown')); // Sätter typen till string eller null
-  const isAdmin = localStorage.getItem('isAdmin') === 'true'; // Sätter typen till boolean och kollar om användaren är admin eller inte genom att hämta isAdmin från localStorage
-  const token = localStorage.getItem('token'); // Hämtar token från localStorage och lägger in i variabeln token som sedan används i fetchen nedan för att kunna hämta data från API:et
+  const [firstName, setFirstName] = useState<string | null>(null);
+  const [lastName, setLastName] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [usernameLoaded, setUsernameLoaded] = useState(false);
+  const [messageShown, setMessageShown] = useState(localStorage.getItem('messageShown'));
+  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
-    if (token) { // Om token finns så dekodas den och sätts i variablerna firstName och lastName
-      const decodedToken = jwt_decode<DecodedToken>(token); // Dekodar token och sätter typen till DecodedToken som är en interface
-      setFirstName(decodedToken.given_name); // Sparar förnamnet i variabeln firstName 
-      setLastName(decodedToken.family_name); // Sparar efternamnet i variabeln lastName
+    if (token) {
+      const decodedToken = jwt_decode<DecodedTokenProps>(token);
+      setFirstName(decodedToken.given_name);
+      setLastName(decodedToken.family_name);
     }
 
-    if (firstName && lastName && !messageShown) { // Om firstName och lastName finns och messageShown inte finns så körs koden nedan
-      setMessage(`Välkommen, ${firstName} ${lastName}!`); // Sparar ett meddelande i variabeln message
+    if (firstName && lastName && !messageShown) {
+      setMessage(`Welcome, ${firstName} ${lastName}!`);
       const timer = setTimeout(() => {
-        setMessage(null); // Sätter message till null
+        setMessage(null);
         setUsernameLoaded(true);
-        setMessageShown('true'); // Sparar messageShown i localStorage så att meddelandet inte visas igen
-        localStorage.setItem('messageShown', 'true'); // Sparar messageShown i localStorage så att meddelandet inte visas igen
-      }, 2000); // Sätter en timer på 2 sekunder
-      return () => clearTimeout(timer); // Returnerar en funktion som rensar timern när komponenten unmountas så att det inte blir något memory leak 
+        setMessageShown('true');
+        localStorage.setItem('messageShown', 'true');
+      }, 2000);
+      return () => clearTimeout(timer);
     } else if (firstName && lastName && messageShown) {
-      setUsernameLoaded(true); // Sätter usernameLoaded till true
+      setUsernameLoaded(true);
     }
   }, [token, firstName, lastName, messageShown]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Tar bort token från localStorage
-    localStorage.removeItem('isAdmin'); // Tar bort isAdmin från localStorage
-    localStorage.removeItem('messageShown'); // Tar bort messageShown från localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('isAdmin');
+    localStorage.removeItem('messageShown');
   };
+
 
   return (
     <>
@@ -104,7 +100,7 @@ const Main = () => {
                     letterSpacing: '0px',
                   }}
                 >
-                  Ny produkt
+                  Add Product
                 </Button>
               </div>
             )}
@@ -123,7 +119,7 @@ const Main = () => {
                     letterSpacing: '0px',
                   }}
                 >
-                  Sök Produkt
+                  Search Product
                 </Button>
               </div>
               {isAdmin && (
@@ -142,7 +138,7 @@ const Main = () => {
                       letterSpacing: '0px',
                     }}
                   >
-                    Lägg till kategori
+                    Add Category
                   </Button>
                 </div>
               )}
@@ -162,7 +158,7 @@ const Main = () => {
                       letterSpacing: '0px',
                     }}
                   >
-                    Lägg till produkt
+                    Add Product to Category
                   </Button>
                 </div>
               )}
@@ -181,7 +177,7 @@ const Main = () => {
                     letterSpacing: '0px',
                   }}
                 >
-                  Lista kategorier
+                  List Categories
                 </Button>
               </div>
               <div style={{ marginTop: '10px', width: '300px' }}>
@@ -200,7 +196,7 @@ const Main = () => {
                     letterSpacing: '0px',
                   }}
                 >
-                  Logga ut
+                  Log Out
                 </Button>
               </div>
             </div>
@@ -208,7 +204,7 @@ const Main = () => {
         </>
       )}
     </>
-  );
+  );  
 };
 
 export default Main;

@@ -11,7 +11,6 @@ import AddCategory from './components/add-category/AddCategory';
 import AddProductToCategory from './components/add-product-to-category/AddProductToCategory';
 import ListCategories from './components/list-categories/ListCategories';
 import RegisterAccount from './components/login-details/register-account/RegisterAccount';
-import { Button } from '@mui/material';
 
 function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
@@ -23,10 +22,6 @@ function App() {
   const handleLogin = (newToken: string) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
   };
 
   return (
@@ -48,25 +43,6 @@ function App() {
           {token && <Route path="/ListCategories" element={<ListCategories />} />}
         </Routes>
       </Router>
-      <Button
-        variant="contained"
-        color="error"
-        fullWidth
-        onClick={handleLogout}
-        style={{
-          height: 44.5,
-          width: '200px',
-          fontWeight: 'bold',
-          textTransform: 'none',
-          letterSpacing: '0px',
-          margin: '30px auto',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}
-      >
-        Ta bort token
-      </Button>
     </div>
   );
 }

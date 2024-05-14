@@ -1,51 +1,38 @@
 import React, { useEffect, useState } from "react";
 import {
   Table, TableBody, TableCell, TableContainer,
-  TableHead,TableRow, Paper, IconButton,
+  TableHead, TableRow, Paper, IconButton,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import { Link } from "react-router-dom";
-
-interface Category {
-  id: number;
-  name: string;
-  products: Product[];
-}
-
-interface Product {
-  id: number;
-  name: string;
-  sku: string;
-  description: string;
-  imageUrl: string;
-  price: number;
-}
+import { CategoryProps } from "../add-category/AddCategory.types";
+import { ProductProps } from "../add-product-to-category/AddProductToCategory.types";
 
 const ListCategories = () => {
-  const [categories, setCategories] = useState<Category[]>([]); // Lägger in en tom array i useState som är av typen Category
-  const token = localStorage.getItem("token"); // Hämtar token från localStorage och lägger in i variabeln token som sedan används i fetchen nedan för att kunna hämta data från API:et
-  const [errorUnauthorized, setErrorUnauthorized] = useState(""); // Felmeddelande för att användaren inte är inloggad
+  const [categories, setCategories] = useState<CategoryProps[]>([]);
+  const token = localStorage.getItem("token");
+  const [errorUnauthorized, setErrorUnauthorized] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("https://app-productmanager-prod.azurewebsites.net/categories", { // Hämtar data från API:et
+        const response = await fetch("https://app-productmanager.azurewebsites.net/categories", {
           headers: {
-            Authorization: `Bearer ${token}`, // Lägger in token i header för att kunna hämta data från API:et
+            Authorization: `Bearer ${token}`,
           },
         });
 
-        const data: Category[] = await response.json(); // Sparar datan från API:et i variabeln data och sätter typen till Category
-        const categoriesWithProducts = data.filter( // Filtrerar bort kategorier som inte har några produkter i sig
-          (category: Category) => category.products.length > 0 // Sparar kategorier som har produkter i sig i variabeln categoriesWithProducts
+        const data: CategoryProps[] = await response.json();
+        const categoriesWithProducts = data.filter(
+          (category: CategoryProps) => category.products.length > 0
         );
-        setCategories(categoriesWithProducts); // Sätter state till categoriesWithProducts som innehåller kategorier med produkter i sig
-      } catch (error) { // Om det blir error när datan ska hämtas från API:et så loggas det ut i konsolen
-        setErrorUnauthorized("Ej behörighet för utförande");
-        console.error("Error fetching data:", error); // Loggar ut error i konsolen
+        setCategories(categoriesWithProducts);
+      } catch (error) {
+        setErrorUnauthorized("Not authorized to perform this operation");
+        console.error("Error fetching data:", error);
       }
     };
-    fetchData(); // Kör funktionen fetchData
+    fetchData();
   }, []);
 
   return (
@@ -78,7 +65,7 @@ const ListCategories = () => {
           <HomeIcon />
         </IconButton>
       </div>
-      {categories.map((category: Category) => (
+      {categories.map((category: CategoryProps) => (
         <div key={category.id}>
           <TableContainer
             component={Paper}
@@ -109,7 +96,7 @@ const ListCategories = () => {
                       width: 100,
                     }}
                   >
-                    <span>Namn</span> 
+                    <span>Name</span> 
                   </TableCell>
                   <TableCell
                     style={{
@@ -129,7 +116,7 @@ const ListCategories = () => {
                       width: 100,
                     }}
                   >
-                    <span>Beskrivning</span> 
+                    <span>Description</span> 
                   </TableCell>
                   <TableCell
                     style={{
@@ -139,7 +126,7 @@ const ListCategories = () => {
                       width: 100,
                     }}
                   >
-                    <span>Bild (URL)</span> 
+                    <span>Image (URL)</span> 
                   </TableCell>
                   <TableCell
                     style={{
@@ -149,12 +136,12 @@ const ListCategories = () => {
                       width: 100,
                     }}
                   >
-                    <span>Pris</span> 
+                    <span>Price</span> 
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {category.products.map((product: Product, index: number) => (
+                {category.products.map((product: ProductProps, index: number) => (
                   <TableRow
                     key={product.id}
                     className={
@@ -174,7 +161,7 @@ const ListCategories = () => {
                       {product.imageUrl}
                     </TableCell>
                     <TableCell style={{ textAlign: "center" }}>
-                      {product.price} SEK
+                      {product.price} $
                     </TableCell>
                   </TableRow>
                 ))}

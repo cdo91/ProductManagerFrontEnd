@@ -8,82 +8,77 @@ import {
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import { Check, Clear } from "@mui/icons-material";
-
-interface Product {
-  name: string;
-  sku: string;
-  description: string;
-  imageUrl: string;
-  price: string;
-}
+import { ProductProps } from "../add-product-to-category/AddProductToCategory.types";
 
 const RegisterProduct = () => {
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm<ProductProps>();
 
-    const {
-        handleSubmit, // Submit funktion för att skicka formuläret 
-        control, // Kontrollerar inputfälten i formuläret 
-        formState: { errors }, // Formstate för att kunna visa felmeddelanden
-        reset, // Reset funktion för att rensa inputfälten i formuläret
-    } = useForm<Product>(); // Sätter typen till Product som är en interface
+  const [skuError, setSkuError] = useState<string | null>(null);
+  const [errorUnauthorized, setErrorUnauthorized] = useState<string | null>(null);
+  const [isRegisterProductVisible, setIsRegisterProductVisible] = useState(true);
+  const [isConfirmationPromptVisible, setIsConfirmationPromptVisible] = useState(false);
+  const [isProductSavedMessageVisible, setIsProductSavedMessageVisible] = useState(false);
+  const [formData, setFormData] = useState<ProductProps | null>(null);
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
-    const [skuError, setSkuError] = useState<string | null>(null); // Sätter typen till string eller null
-    const [errorUnauthorized, setErrorUnauthorized] = useState<string | null>(null); // Sätter typen till string eller null
-    const [isRegisterProductVisible, setIsRegisterProductVisible] = useState(true); // Sätter typen till boolean
-    const [isConfirmationPromptVisible, setIsConfirmationPromptVisible] = useState(false); // Sätter typen till boolean
-    const [isProductSavedMessageVisible, setIsProductSavedMessageVisible] = useState(false); // Sätter typen till boolean
-    const [formData, setFormData] = useState<Product | null>(null); // Sätter typen till Product eller null 
-    const token = localStorage.getItem("token"); // Hämtar token från localStorage och lägger in i variabeln token som sedan används i fetchen nedan för att kunna hämta data från API:et
-    const navigate = useNavigate(); // Används för att kunna navigera till en annan sida
+  const clearSkuError = () => {
+    setSkuError(null);
+  };
 
-    const clearSkuError = () => { // Funktion för att rensa skuError
-        setSkuError(null);
-    };
-
-    const onSubmit = async (data: Product) => {
-      try {
-        setIsConfirmationPromptVisible(true); // Visar bekräftelse prompt 
-        setFormData(data); // Sparar data i variabeln formData
-      } catch (error) { // Om det blir error när datan ska hämtas från API:et så loggas det ut i konsolen
-        setErrorUnauthorized("Ej behörighet för utförande"); // Sparar ett error meddelande i variabeln errorUnauthorized
-        console.error("Error:", error); // Loggar ut error i konsolen
-      }
-    };
-
-  const handleConfirmYes = async (data: Product) => {
+  const onSubmit = async (data: ProductProps) => {
     try {
-      const response = await fetch("https://app-productmanager-prod.azurewebsites.net/products", { // Skickar data till API:et
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json", // Sätter Content-Type till application/json
-          Authorization: `Bearer ${token}`, // Lägger in token i header för att kunna hämta data från API:et
-        },
-        body: JSON.stringify(data), // Sparar data i body som skickas till API:et och konverterar datan till JSON format
-      });
+      setIsConfirmationPromptVisible(true);
+      setFormData(data);
+    } catch (error) {
+      setErrorUnauthorized("Unauthorized to perform");
+      console.error("Error:", error);
+    }
+  };
 
-      if (response.ok) { // Om det går att skicka datan till API:et så körs koden nedan
-        setIsConfirmationPromptVisible(false); // Stänger bekräftelse prompt
-        setIsProductSavedMessageVisible(true); // Visar meddelande om att produkten är sparad
-        setFormData(data); // Sparar data i variabeln formData
+  const handleConfirmYes = async (data: ProductProps) => {
+    try {
+      const response = await fetch(
+        "https://app-productmanager.azurewebsites.net/products",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (response.ok) {
+        setIsConfirmationPromptVisible(false);
+        setIsProductSavedMessageVisible(true);
+        setFormData(data);
         setTimeout(() => {
-          setIsProductSavedMessageVisible(false); // Stänger meddelandet om att produkten är sparad
-          navigate("/Main"); // Navigerar till sidan Main
-        }, 2000); // Väntar 2 sekunder innan den navigerar till sidan Main       
-      } else if (response.status === 400) { // Om det blir error när datan ska skickas till API:et så körs koden nedan
-        setIsConfirmationPromptVisible(false); // Stänger bekräftelse prompt
-        setIsRegisterProductVisible(true); // Visar formuläret igen
-        setSkuError("SKU finns redan"); // Sparar ett error meddelande i variabeln skuError
+          setIsProductSavedMessageVisible(false);
+          navigate("/Main");
+        }, 2000);
+      } else if (response.status === 400) {
+        setIsConfirmationPromptVisible(false);
+        setIsRegisterProductVisible(true);
+        setSkuError("SKU already exists");
       }
-    } catch (error) { // Om det blir error när datan ska skickas till API:et så loggas det ut i konsolen
-      setIsConfirmationPromptVisible(false); // Stänger bekräftelse prompt
-      setErrorUnauthorized("Ej behörighet för utförande"); // Sparar ett error meddelande i variabeln errorUnauthorized
-      console.error("Error:", error); // Loggar ut error i konsolen
+    } catch (error) {
+      setIsConfirmationPromptVisible(false);
+      setErrorUnauthorized("Unauthorized to perform");
+      console.error("Error:", error);
     }
   };
 
   const handleConfirmNo = () => {
-    setIsConfirmationPromptVisible(false); // Stänger bekräftelse prompt
-    setIsRegisterProductVisible(true); // Visar formuläret igen
-    reset(); // Rensar inputfälten i formuläret
+    setIsConfirmationPromptVisible(false);
+    setIsRegisterProductVisible(true);
+    reset();
   };
 
   return (
@@ -132,21 +127,21 @@ const RegisterProduct = () => {
                   name="name"
                   control={control}
                   defaultValue=""
-                  rules={{ required: "Namn måste vara ifylld." }}
+                  rules={{ required: "Name is required." }}
                   render={({ field }) => (
                     <>
                       <TextField
                         {...field}
-                        label={<span style={{ fontSize: "14px" }}>Namn</span>}
+                        label={<span style={{ fontSize: "14px" }}>Name</span>}
                         variant="outlined"
                         fullWidth
                         error={Boolean(errors.name)}
                         onFocus={clearSkuError}
                         style={{
-                            width: "100%",
-                            backgroundColor: "white",
-                            borderRadius: "5px",
-                            boxShadow: "2px 2px 2px rgba(126, 125, 125, 0.5)",
+                          width: "100%",
+                          backgroundColor: "white",
+                          borderRadius: "5px",
+                          boxShadow: "2px 2px 2px rgba(126, 125, 125, 0.5)",
                         }}
                       />
                       {errors.name && (
@@ -161,7 +156,7 @@ const RegisterProduct = () => {
                   name="sku"
                   control={control}
                   defaultValue=""
-                  rules={{ required: "SKU måste vara ifylld" }}
+                  rules={{ required: "SKU is required." }}
                   render={({ field }) => (
                     <>
                       <TextField
@@ -191,7 +186,7 @@ const RegisterProduct = () => {
                   name="description"
                   control={control}
                   defaultValue=""
-                  rules={{ required: "Beskrivning måste vara ifylld" }}
+                  rules={{ required: "Description is required" }}
                   render={({ field }) => (
                     <>
                       <TextField
@@ -202,7 +197,7 @@ const RegisterProduct = () => {
                         minRows={3}
                         error={Boolean(errors.description)}
                         label={
-                          <span style={{ fontSize: "14px" }}>Beskrivning</span>
+                          <span style={{ fontSize: "14px" }}>Description</span>
                         }
                         onFocus={clearSkuError}
                         style={{
@@ -228,10 +223,10 @@ const RegisterProduct = () => {
                   control={control}
                   defaultValue=""
                   rules={{
-                    required: "Bild (URL) måste vara ifylld",
+                    required: "Image (URL) is required.",
                     pattern: {
                       value: /^https?:\/\/.+$/,
-                      message: "Felaktig URL format.",
+                      message: "Invalid URL format.",
                     },
                   }}
                   render={({ field }) => (
@@ -239,7 +234,7 @@ const RegisterProduct = () => {
                       <TextField
                         {...field}
                         label={
-                          <span style={{ fontSize: "14px" }}>Bild (URL)</span>
+                          <span style={{ fontSize: "14px" }}>Image (URL)</span>
                         }
                         variant="outlined"
                         fullWidth
@@ -263,19 +258,19 @@ const RegisterProduct = () => {
                 <Controller
                   name="price"
                   control={control}
-                  defaultValue=""
+                  defaultValue={undefined}
                   rules={{
-                    required: "Pris måste vara ifylld",
+                    required: "Price is required",
                     pattern: {
                       value: /^[0-9]+$/,
-                      message: "Pris måste vara ett heltal",
+                      message: "Price is required",
                     },
                   }}
                   render={({ field }) => (
                     <>
                       <TextField
                         {...field}
-                        label={<span style={{ fontSize: "14px" }}>Pris</span>}
+                        label={<span style={{ fontSize: "14px" }}>Price</span>}
                         variant="outlined"
                         fullWidth
                         error={Boolean(errors.price)}
@@ -307,7 +302,7 @@ const RegisterProduct = () => {
                   letterSpacing: "0px",
                 }}
               >
-                Registrera Produkt
+                Register Product
               </Button>
               {errorUnauthorized && (
                 <div
@@ -345,7 +340,7 @@ const RegisterProduct = () => {
               fontWeight: 600,
             }}
           >
-            <p>Är detta korrekt?</p>
+            <p>Is this correct?</p>
             <TableContainer
               component={Paper}
               style={{
@@ -393,7 +388,7 @@ const RegisterProduct = () => {
                         textAlign: "center",
                       }}
                     >
-                      Bild (URL)
+                      Image (URL)
                     </TableCell>
                     <TableCell
                       style={{
@@ -422,7 +417,7 @@ const RegisterProduct = () => {
                         {formData.imageUrl}
                       </TableCell>
                       <TableCell style={{ textAlign: "center" }}>
-                        {formData.price} SEK
+                        {formData.price} $
                       </TableCell>
                     </TableRow>
                   )}
@@ -486,7 +481,7 @@ const RegisterProduct = () => {
               color: "#fff",
             }}
           >
-            <div className="confirmation-message">Produkt sparad</div>
+            <div className="confirmation-message">Product saved</div>
           </DialogContent>
         </Dialog>
       )}

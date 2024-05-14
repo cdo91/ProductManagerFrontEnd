@@ -1,103 +1,92 @@
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
-  TextField, Button, Container,
-  Avatar, Typography, InputAdornment, Dialog, DialogContent,
+  TextField, Button, Avatar, Typography,
+  InputAdornment, Dialog, DialogContent,
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { Link, useNavigate } from "react-router-dom";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-
-interface RegistrationForm {
-  userName: string;
-  firstName: string;
-  lastName: string;
-  birthDate: Date | null;
-  address: string;
-  city: string;
-  zipCode: number;
-  email: string;
-  phoneNumber: string;
-  password: string;
-  admin: boolean;
-}
+import { RegistrationProps } from "./RegisterAccount.types";
 
 const RegisterAccount = () => {
   const {
-    handleSubmit, // Submit funktion som skickar iväg datan till API:et
-    control, // React-hook-form funktion som används för att kontrollera inputfälten i formuläret
-    formState: { errors }, // Formstate som används för att visa felmeddelanden
-  } = useForm<RegistrationForm>(); // Sätter typen på datan som skickas till API:et till RegistrationForm
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<RegistrationProps>();
 
-  const [registrationError, setRegistrationError] = useState<string | null>(null); // State som används för att visa felmeddelande om registreringen misslyckas
-  const [registrationErrorUserName, setRegistrationErrorUserName] = useState<string | null>(null); // State som används för att visa felmeddelande om användarnamnet redan existerar
-  const [registrationErrorEmail, setRegistrationErrorEmail] = useState<string | null>(null); // State som används för att visa felmeddelande om emailen redan existerar
-  const [isRegisterAccountVisible, setIsRegisterAccountVisible] = useState(true); // State som används för att visa registreringsformuläret
-  const [isAccountSavedMessageVisible, setIsAccountSavedMessageVisible] = useState(false); // State som används för att visa bekräftelsemeddelandet när kontot har skapats
-  const [isPhoneFocused, setIsPhoneFocused] = useState(false); // State som används för att visa +46 i inputfältet för telefonnummer
-  const navigate = useNavigate(); // React-router-dom funktion som används för att navigera till en annan sida
+  const [registrationError, setRegistrationError] = useState<string | null>(null);
+  const [registrationErrorUserName, setRegistrationErrorUserName] = useState<string | null>(null);
+  const [registrationErrorEmail, setRegistrationErrorEmail] = useState<string | null>(null);
+  const [isRegisterAccountVisible, setIsRegisterAccountVisible] = useState(true);
+  const [isAccountSavedMessageVisible, setIsAccountSavedMessageVisible] = useState(false);
+  const [isPhoneFocused, setIsPhoneFocused] = useState(false);
+  const navigate = useNavigate();
 
-  const clearRegistrationErrorUserName = () => { // Funktion som används för att rensa bort felmeddelandet om användarnamnet redan existerar
+  const clearRegistrationErrorUserName = () => {
     setRegistrationErrorUserName(null);
   };
 
-  const clearRegistrationErrorEmail = () => { // Funktion som används för att rensa bort felmeddelandet om emailen redan existerar
+  const clearRegistrationErrorEmail = () => {
     setRegistrationErrorEmail(null);
   };
 
-  const onSubmit = async (data: RegistrationForm) => {
+  const onSubmit = async (data: RegistrationProps) => {
     try {
-      data.admin = false; // Sätter admin till false eftersom det inte går att registrera sig som admin
-      data.phoneNumber = "+46" + data.phoneNumber; // Lägger till +46 framför telefonnumret
+      data.admin = false;
+      data.phoneNumber = "+46" + data.phoneNumber;
 
-      if (data.birthDate) { // Om birthDate inte är null så sätts det till UTC
-        const birthDate = new Date(data.birthDate); // Skapar ett nytt Date objekt av birthDate
-        const utcBirthDate = new Date( // Skapar ett nytt Date objekt av birthDate som är i UTC (Universal Time Coordinated)
+      if (data.birthDate) {
+        const birthDate = new Date(data.birthDate);
+        const utcBirthDate = new Date(
           Date.UTC(
-            birthDate.getFullYear(), // getFullYear() returnerar ett år som en fyrsiffrig siffra
-            birthDate.getMonth(), // getMonth() returnerar månaden
-            birthDate.getDate(), // getDate() returnerar dagen i månaden
-            birthDate.getHours(), // getHours() returnerar timmen
-            birthDate.getMinutes(), // getMinutes() returnerar minuten
-            birthDate.getSeconds() // getSeconds() returnerar sekunden
+            birthDate.getFullYear(),
+            birthDate.getMonth(),
+            birthDate.getDate(),
+            birthDate.getHours(),
+            birthDate.getMinutes(),
+            birthDate.getSeconds()
           )
         );
-        data.birthDate = utcBirthDate; // Sätter birthDate till utcBirthDate
+        data.birthDate = utcBirthDate;
       } else {
-        data.birthDate = null; // Om birthDate är null så sätts det till null
+        data.birthDate = null;
       }
 
-      const response = await fetch("https://app-productmanager-prod.azurewebsites.net/login/register-account", { // Skickar datan till API:et
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json", // Sätter Content-Type till application/json
-        },
-        body: JSON.stringify(data), // Gör om datan till en sträng och skickar med den till API:et
-      });
+      const response = await fetch("https://app-productmanager.azurewebsites.net/login/register-account", 
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
-      if (response.ok) { // Om registreringen lyckas så visas bekräftelsemeddelandet och användaren skickas till AdminMain.tsx
-        setIsRegisterAccountVisible(false); // Döljer registreringsformuläret
-        setIsAccountSavedMessageVisible(true); // Visar bekräftelsemeddelandet
+      if (response.ok) {
+        setIsRegisterAccountVisible(false);
+        setIsAccountSavedMessageVisible(true);
         setTimeout(() => {
-          setIsAccountSavedMessageVisible(false); // Döljer bekräftelsemeddelandet efter 2 sekunder
-          navigate("/"); // Skickar användaren till AdminMain.tsx
-        }, 2000); // efter 2 sekunder
-      } else if (response.status === 400) { // Om registreringen misslyckas så visas felmeddelandet
-        const responseData = await response.json(); // Sparar datan från API:et i variabeln responseData
-        if (responseData.errorType === "both") { // Om både användarnamnet och emailen redan existerar så visas felmeddelandet för båda
-          setRegistrationErrorUserName("Användarnamn existerar redan");
-          setRegistrationErrorEmail("Email existerar redan");
-        } else if (responseData.errorType === "userName") { // Om användarnamnet redan existerar så visas felmeddelandet för användarnamnet
-          setRegistrationErrorUserName("Användarnamn existerar redan");
-        } else if (responseData.errorType === "email") { // Om emailen redan existerar så visas felmeddelandet för emailen
-          setRegistrationErrorEmail("Email existerar redan");
+          setIsAccountSavedMessageVisible(false);
+          navigate("/");
+        }, 2000);
+      } else if (response.status === 400) {
+        const responseData = await response.json();
+        if (responseData.errorType === "both") {
+          setRegistrationErrorUserName("Username already exists");
+          setRegistrationErrorEmail("Email already exists");
+        } else if (responseData.errorType === "userName") {
+          setRegistrationErrorUserName("Username already exists");
+        } else if (responseData.errorType === "email") {
+          setRegistrationErrorEmail("Email already exists");
         }
       }
-    } catch (error) { // Om det blir error när datan ska skickas till API:et så loggas det ut i konsolen
-      console.error("Error:", error); // Loggar ut error i konsolen
-      setRegistrationError("Misslyckat registreringsförsök. Försök igen"); // Visar felmeddelandet
+    } catch (error) {
+      console.error("Error:", error);
+      setRegistrationError("Failed registration attempt. Please try again");
     }
   };
 
@@ -126,7 +115,7 @@ const RegisterAccount = () => {
             component="h1"
             variant="h5"
           >
-            Bli medlem
+            Join Us
           </Typography>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div
@@ -150,7 +139,7 @@ const RegisterAccount = () => {
                         <span
                           style={{ fontSize: "14px", letterSpacing: "0px" }}
                         >
-                          Användarnamn
+                          Username
                         </span>
                       }
                       variant="outlined"
@@ -183,7 +172,7 @@ const RegisterAccount = () => {
                     name="firstName"
                     control={control}
                     defaultValue=""
-                    rules={{ required: "Förnamn är obligatorisk" }}
+                    rules={{ required: "First name is required" }}
                     render={({ field }) => (
                       <TextField
                         {...field}
@@ -191,7 +180,7 @@ const RegisterAccount = () => {
                           <span
                             style={{ fontSize: "14px", letterSpacing: "0px" }}
                           >
-                            Förnamn
+                            First Name
                           </span>
                         }
                         variant="outlined"
@@ -223,7 +212,7 @@ const RegisterAccount = () => {
                     name="lastName"
                     control={control}
                     defaultValue=""
-                    rules={{ required: "Efternamn är obligatorisk" }}
+                    rules={{ required: "Last name is required" }}
                     render={({ field }) => (
                       <TextField
                         {...field}
@@ -231,7 +220,7 @@ const RegisterAccount = () => {
                           <span
                             style={{ fontSize: "14px", letterSpacing: "0px" }}
                           >
-                            Efternamn
+                            Last Name
                           </span>
                         }
                         variant="outlined"
@@ -264,7 +253,7 @@ const RegisterAccount = () => {
                   name="birthDate"
                   control={control}
                   defaultValue={null}
-                  rules={{ required: "Födelsedatum är obligatorisk" }}
+                  rules={{ required: "Birth date is required" }}
                   render={({ field }) => (
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
@@ -277,7 +266,7 @@ const RegisterAccount = () => {
                               color: errors.birthDate ? "red" : "",
                             }}
                           >
-                            Födelsedatum
+                            Birth Date
                           </span>
                         }
                         sx={{
@@ -301,7 +290,7 @@ const RegisterAccount = () => {
                   name="address"
                   control={control}
                   defaultValue=""
-                  rules={{ required: "Adress är obligatorisk" }}
+                  rules={{ required: "Address is required" }}
                   render={({ field }) => (
                     <TextField
                       {...field}
@@ -309,7 +298,7 @@ const RegisterAccount = () => {
                         <span
                           style={{ fontSize: "14px", letterSpacing: "0px" }}
                         >
-                          Adress
+                          Address
                         </span>
                       }
                       variant="outlined"
@@ -335,7 +324,7 @@ const RegisterAccount = () => {
                     name="city"
                     control={control}
                     defaultValue=""
-                    rules={{ required: "Stad är obligatorisk" }}
+                    rules={{ required: "City is required" }}
                     render={({ field }) => (
                       <TextField
                         {...field}
@@ -343,7 +332,7 @@ const RegisterAccount = () => {
                           <span
                             style={{ fontSize: "14px", letterSpacing: "0px" }}
                           >
-                            Stad
+                            City
                           </span>
                         }
                         variant="outlined"
@@ -376,10 +365,10 @@ const RegisterAccount = () => {
                     control={control}
                     defaultValue={undefined}
                     rules={{
-                      required: "Pnr är obligatorisk",
+                      required: "Zip code is required",
                       pattern: {
                         value: /^\d{5}$/,
-                        message: "Pnr består av 5 siffror",
+                        message: "Zip code must consist of 5 digits",
                       },
                     }}
                     render={({ field }) => (
@@ -389,7 +378,7 @@ const RegisterAccount = () => {
                           <span
                             style={{ fontSize: "14px", letterSpacing: "0px" }}
                           >
-                            Postnummer
+                            Zip Code
                           </span>
                         }
                         variant="outlined"
@@ -469,13 +458,19 @@ const RegisterAccount = () => {
                   rules={{
                     pattern: {
                       value: /^\d{9}$/,
-                      message: "Telefonnumret måste innehålla 9 siffror",
+                      message: "Phone number must contain 9 digits",
                     },
                   }}
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label={<span style={{ fontSize: "14px", letterSpacing: "0px" }}>Telefonnummer</span>}
+                      label={
+                        <span
+                          style={{ fontSize: "14px", letterSpacing: "0px" }}
+                        >
+                          Phone Number
+                        </span>
+                      }
                       variant="outlined"
                       fullWidth
                       onFocus={() => {
@@ -495,6 +490,7 @@ const RegisterAccount = () => {
                     />
                   )}
                 />
+
                 {errors.phoneNumber && (
                   <div className="error">{errors.phoneNumber.message}</div>
                 )}
@@ -508,7 +504,12 @@ const RegisterAccount = () => {
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label={<span style={{ fontSize: "14px", letterSpacing: "0px" }}>Lösenord</span>
+                      label={
+                        <span
+                          style={{ fontSize: "14px", letterSpacing: "0px" }}
+                        >
+                          Password
+                        </span>
                       }
                       type="password"
                       variant="outlined"
@@ -539,7 +540,7 @@ const RegisterAccount = () => {
                   marginTop: "10px",
                 }}
               >
-                <span>Registrera konto</span> 
+                <span>Register Account</span>
               </Button>
             </div>
             <Link
@@ -553,7 +554,7 @@ const RegisterAccount = () => {
                 color: "rgb(1, 103, 255)",
               }}
             >
-              <span>Har du redan ett konto? Logga in</span> 
+              <span>Already have an account? Log in</span>
             </Link>
             {registrationError && (
               <div
@@ -571,31 +572,29 @@ const RegisterAccount = () => {
         </div>
       )}
       {isAccountSavedMessageVisible && (
-        <Dialog
-        open={isAccountSavedMessageVisible}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogContent
-          style={{
-            backgroundColor: "#2979ff",
-            padding: "30px 0 30px 0",
-            borderRadius: 5,
-            margin: "30px auto",
-            boxShadow: "3px 3px 4px rgba(68, 68, 68, 0.5)",
-            display: "flex",
-            justifyContent: "center",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-            width: "90%",
-            fontWeight: 600,
-            color: "#fff",
-          }}
-        >
-          <div className="confirmation-message">Kontot är registrerat</div>
-        </DialogContent>
-      </Dialog>
+        <Dialog open={isAccountSavedMessageVisible} maxWidth="sm" fullWidth>
+          <DialogContent
+            style={{
+              backgroundColor: "#2979ff",
+              padding: "30px 0 30px 0",
+              borderRadius: 5,
+              margin: "30px auto",
+              boxShadow: "3px 3px 4px rgba(68, 68, 68, 0.5)",
+              display: "flex",
+              justifyContent: "center",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              width: "90%",
+              fontWeight: 600,
+              color: "#fff",
+            }}
+          >
+            <div className="confirmation-message">
+              Account registered successfully
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </>
   );

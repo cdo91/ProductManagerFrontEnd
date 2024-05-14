@@ -1,84 +1,73 @@
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   TextField, Button, Container, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, Dialog,
   DialogContent, IconButton,
 } from "@mui/material";
-import { useLocation } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import { Check, Clear } from "@mui/icons-material";
-
-interface Product {
-  name: string;
-  sku: string;
-  description: string;
-  imageUrl: string;
-  price: string;
-}
+import { ProductProps } from "../add-product-to-category/AddProductToCategory.types";
 
 const UpdateProduct = () => {
   const {
-    handleSubmit, // Submit funktion som skickar data till API:et 
-    control, // Kontrollerar inputfälten 
-    formState: { errors }, // Formstate som används för att visa felmeddelanden
-    reset, // Reset funktion som rensar inputfälten
-  } = useForm<Product>(); // Sätter typen till Product som är en interface
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm<ProductProps>();
 
+  const [isUpdateInputVisible, setIsUpdateInputVisible] = useState(true);
+  const [isUpdateConfirmationVisible, setIsUpdateConfirmationVisible] = useState(false);
+  const [isProductUpdatedMessageVisible, setIsProductUpdatedMessageVisible] = useState(false);
+  const [formData, setFormData] = useState<ProductProps | null>(null);
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const location = useLocation();
+  const initialSku = location.state?.sku || "";
 
-  const [isUpdateInputVisible, setIsUpdateInputVisible] = useState(true); // Sätter typen till boolean
-  const [isUpdateConfirmationVisible, setIsUpdateConfirmationVisible] = useState(false); // Sätter typen till boolean
-  const [isProductUpdatedMessageVisible, setIsProductUpdatedMessageVisible] = useState(false); // Sätter typen till boolean
-  // Sätter typen till Product eller null och används för att spara data från inputfälten som sedan skickas till API:et för att uppdatera produkten 
-  const [formData, setFormData] = useState<Product | null>(null);
-  const navigate = useNavigate(); // Hämtar navigate från react-router-dom som används för att navigera mellan komponenter
-  const token = localStorage.getItem("token"); // Hämtar token från localStorage och lägger in i variabeln token som sedan används i fetchen nedan för att kunna hämta data från API:et
-  const location = useLocation(); // Hämtar location från react-router-dom som används för att skicka med data mellan komponenter
-  const initialSku = location.state?.sku || ""; // Sparar sku från location i variabeln initialSku som skickas med från komponenten SearchProduct
-
-
-  const handleConfirmNo = () => { // 
-    reset({ // Rensar inputfälten
-      name: "", 
-      description: "", 
-      imageUrl: "", 
-      price: "", 
+  const handleConfirmNo = () => {
+    reset({
+      name: "",
+      description: "",
+      imageUrl: "",
+      price: undefined,
     });
-    setIsUpdateInputVisible(true);  // Visar inputfälten
-    setIsUpdateConfirmationVisible(false); // Döljer bekräftelseprompten
+    setIsUpdateInputVisible(true);
+    setIsUpdateConfirmationVisible(false);
   };
 
-  const handleConfirmYes = async (data: Product) => {
+  const handleConfirmYes = async (data: ProductProps) => {
     try {
       const response = await fetch(
-        `https://app-productmanager-prod.azurewebsites.net/products/${data.sku}`, // Hämtar data från API:et
+        `https://app-productmanager.azurewebsites.net/products/${data.sku}`,
         {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json", // Sätter Content-Type till application/json
-            Authorization: `Bearer ${token}`, // Lägger in token i header för att kunna hämta data från API:et
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(data), // Skickar med data från inputfälten till API:et
+          body: JSON.stringify(data),
         }
       );
-      if (response.ok) { // Om det går att hämta data från API:et så körs koden nedan
-        setIsUpdateConfirmationVisible(false); // Döljer bekräftelseprompten
-        setIsProductUpdatedMessageVisible(true); // Visar meddelande om att produkten är uppdaterad
-        setFormData(data); // Sparar data från inputfälten i variabeln formData
+      if (response.ok) {
+        setIsUpdateConfirmationVisible(false);
+        setIsProductUpdatedMessageVisible(true);
+        setFormData(data);
         setTimeout(() => {
-          setIsProductUpdatedMessageVisible(false); // Döljer meddelandet om att produkten är uppdaterad
-          navigate("/Main"); // Navigerar tillbaka till Main
-        }, 2000); // Efter 2 sekunder
+          setIsProductUpdatedMessageVisible(false);
+          navigate("/Main");
+        }, 2000);
       }
-    } catch (error) { // Om det inte går att hämta data från API:et så loggas ett felmeddelande ut i konsolen
-      console.error("Error:", error); // Loggar ut error i konsolen
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
 
-  const onSubmit = async (data: Product) => {
-    setIsUpdateConfirmationVisible(true); // Visar bekräftelseprompten
-    setFormData(data); // Sparar data från inputfälten i variabeln formData
+  const onSubmit = async (data: ProductProps) => {
+    setIsUpdateConfirmationVisible(true);
+    setFormData(data);
   };
 
   return (
@@ -126,12 +115,12 @@ const UpdateProduct = () => {
                   name="name"
                   control={control}
                   defaultValue=""
-                  rules={{ required: "Namn måste vara ifylld." }}
+                  rules={{ required: "Name is required." }}
                   render={({ field }) => (
                     <>
                       <TextField
                         {...field}
-                        label={<span style={{ fontSize: "14px" }}>Namn</span>}
+                        label={<span style={{ fontSize: "14px" }}>Name</span>}
                         variant="outlined"
                         fullWidth
                         error={Boolean(errors.name)}
@@ -154,7 +143,7 @@ const UpdateProduct = () => {
                   name="sku"
                   control={control}
                   defaultValue={initialSku}
-                  rules={{ required: "SKU måste vara ifylld" }}
+                  rules={{ required: "SKU is required." }}
                   render={({ field }) => (
                     <>
                       <TextField
@@ -183,7 +172,7 @@ const UpdateProduct = () => {
                   name="description"
                   control={control}
                   defaultValue=""
-                  rules={{ required: "Beskrivning måste vara ifylld" }}
+                  rules={{ required: "Description is required." }}
                   render={({ field }) => (
                     <>
                       <TextField
@@ -194,7 +183,7 @@ const UpdateProduct = () => {
                         minRows={3}
                         error={Boolean(errors.description)}
                         label={
-                          <span style={{ fontSize: "14px" }}>Beskrivning</span>
+                          <span style={{ fontSize: "14px" }}>Description</span>
                         }
                         style={{
                           width: "300px",
@@ -219,10 +208,10 @@ const UpdateProduct = () => {
                   control={control}
                   defaultValue=""
                   rules={{
-                    required: "Bild (URL) måste vara ifylld",
+                    required: "Image is required.",
                     pattern: {
                       value: /^https?:\/\/.+$/,
-                      message: "Felaktig URL format.",
+                      message: "Incorrect URL format.",
                     },
                   }}
                   render={({ field }) => (
@@ -230,7 +219,7 @@ const UpdateProduct = () => {
                       <TextField
                         {...field}
                         label={
-                          <span style={{ fontSize: "14px" }}>Bild (URL)</span>
+                          <span style={{ fontSize: "14px" }}>Image (URL)</span>
                         }
                         variant="outlined"
                         fullWidth
@@ -253,19 +242,19 @@ const UpdateProduct = () => {
                 <Controller
                   name="price"
                   control={control}
-                  defaultValue=""
+                  defaultValue={undefined}
                   rules={{
-                    required: "Pris måste vara ifylld",
+                    required: "Price is required.",
                     pattern: {
                       value: /^[0-9]+$/,
-                      message: "Pris måste vara ett heltal",
+                      message: "Price is required.",
                     },
                   }}
                   render={({ field }) => (
                     <>
                       <TextField
                         {...field}
-                        label={<span style={{ fontSize: "14px" }}>Pris</span>}
+                        label={<span style={{ fontSize: "14px" }}>Price</span>}
                         variant="outlined"
                         fullWidth
                         error={Boolean(errors.price)}
@@ -296,7 +285,7 @@ const UpdateProduct = () => {
                   letterSpacing: "0px",
                 }}
               >
-                <p>Uppdatera</p>
+                <p>Update</p>
               </Button>
             </div>
           </form>
@@ -326,7 +315,7 @@ const UpdateProduct = () => {
               fontWeight: 600,
             }}
           >
-            <p>Är detta korrekt?</p>
+            <p>Is this correct?</p>
             <TableContainer
               component={Paper}
               style={{
@@ -374,7 +363,7 @@ const UpdateProduct = () => {
                         textAlign: "center",
                       }}
                     >
-                      Bild (URL)
+                      Image (URL)
                     </TableCell>
                     <TableCell
                       style={{
@@ -403,7 +392,7 @@ const UpdateProduct = () => {
                         {formData.imageUrl}
                       </TableCell>
                       <TableCell style={{ textAlign: "center" }}>
-                        {formData.price}
+                        {formData.price} $
                       </TableCell>
                     </TableRow>
                   )}
@@ -467,7 +456,7 @@ const UpdateProduct = () => {
               color: "#fff",
             }}
           >
-            <p>Produkt uppdaterad</p>
+            <p>Product updated</p>
           </DialogContent>
         </Dialog>
       )}

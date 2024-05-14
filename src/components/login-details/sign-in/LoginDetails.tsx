@@ -2,110 +2,93 @@ import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  TextField,
-  Button,
-  Container,
-  Avatar,
-  Typography,
-  FormControlLabel,
-  Checkbox,
+  TextField, Button, Avatar, Typography,
+  FormControlLabel, Checkbox,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { IconButton, InputAdornment } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-
 import "./LoginDetails.css";
-
-interface LoginForm {
-  // Skapar ett interface för loginformuläret
-  username: string;
-  password: string;
-}
-
-interface LoginDetailsProps { // Skapar ett interface för propsen som skickas in i komponenten
-  // Skapar en funktion som tar emot ett argument av typen string och inte returnerar något värde (void)
-  //som sedan skickas in i komponenten som en prop med namnet onLogin
-  onLogin: (newToken: string) => void; 
-}
+import { LoginDetailsProps, LoginProps } from "./LoginDetails.types";
 
 const LoginDetails: React.FC<LoginDetailsProps> = ({ onLogin }) => {
   
   const {
-    handleSubmit, // Används för att hantera submit av formuläret
-    control, // Används för att hantera kontrollerade komponenter
-    formState: { errors }, // Formstate används för att hantera validering av formuläret
-    setValue, // Används för att sätta värdet på ett fält i formuläret
-  } = useForm<LoginForm>(); // useForm används för att hantera formuläret
+    handleSubmit,
+    control,
+    formState: { errors },
+    setValue,
+  } = useForm<LoginProps>();
 
-  const navigate = useNavigate(); // Används för att kunna navigera till en annan sida
-  const [loginError, setLoginError] = useState<string | null>(null); // Sätter state för loginError till null
-  const [rememberMe, setRememberMe] = useState(false); // Sätter state för rememberMe till false
-  const [showPassword, setShowPassword] = useState(false); // Sätter state för showPassword till false
+  const navigate = useNavigate();
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const clearLoginError = () => { // Skapar en funktion som sätter state för loginError till null
+  const clearLoginError = () => {
     setLoginError(null);
   };
 
-  const handleRememberMeChange = ( // Skapar en funktion som sätter state för rememberMe till true eller false beroende på om checkboxen är ikryssad eller inte
+  const handleRememberMeChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setRememberMe(event.target.checked);
   };
 
   useEffect(() => {
-    const rememberedUsername = localStorage.getItem("rememberedUsername"); // Sparar värdet på rememberedUsername från localStorage i variabeln rememberedUsername
-    const rememberedPassword = localStorage.getItem("rememberedPassword"); // Sparar värdet på rememberedPassword från localStorage i variabeln rememberedPassword
-    if (rememberedUsername && rememberedPassword) { // Om rememberedUsername och rememberedPassword har ett värde så körs koden nedan
-      setValue("username", rememberedUsername); // Sätter värdet på username till rememberedUsername
-      setValue("password", rememberedPassword); // Sätter värdet på password till rememberedPassword
-      setRememberMe(true); // Sätter state för rememberMe till true
+    const rememberedUsername = localStorage.getItem("rememberedUsername");
+    const rememberedPassword = localStorage.getItem("rememberedPassword");
+    if (rememberedUsername && rememberedPassword) {
+      setValue("username", rememberedUsername);
+      setValue("password", rememberedPassword);
+      setRememberMe(true);
     }
-  }, [setValue]); // setValue är en dependency som används för att useEffect ska köras när setValue ändras
+  }, [setValue]);
 
-  const onSubmit = async (data: LoginForm) => {
+  const onSubmit = async (data: LoginProps) => {
     try {
-      const response = await fetch("https://app-productmanager-prod.azurewebsites.net/login", { // Skickar in data från formuläret till API:et
+      const response = await fetch("https://app-productmanager.azurewebsites.net/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" }, // Sätter header till application/json
-        body: JSON.stringify(data), // Gör om datan till en sträng och skickar med den i body
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
 
-      if (!data.username || !data.password) { // Om username eller password är tomma så körs koden nedan
+      if (!data.username || !data.password) {
         setLoginError("Both username and password are required.");
         return;
       }
 
-      if (response.status === 200) { // Om statuskoden är 200 så körs koden nedan
-        const responseData = await response.json(); // Sparar datan från API:et i variabeln responseData
+      if (response.status === 200) {
+        const responseData = await response.json();
 
-        if (responseData.token) { // Om det finns en token i responseData så körs koden nedan
-          const jwtToken = responseData.token; // Sparar token i variabeln jwtToken
-          const isAdmin = responseData.isAdmin; // Sparar isAdmin i variabeln isAdmin
+        if (responseData.token) {
+          const jwtToken = responseData.token;
+          const isAdmin = responseData.isAdmin;
 
-          localStorage.setItem("token", jwtToken); // Sparar token i localStorage
-          localStorage.setItem("username", responseData.username); // Sparar username i localStorage
-          localStorage.removeItem("messageShown"); // Tar bort messageShown från localStorage
-          localStorage.setItem("isAdmin", isAdmin); // Sparar isAdmin i localStorage
+          localStorage.setItem("token", jwtToken);
+          localStorage.setItem("username", responseData.username);
+          localStorage.removeItem("messageShown");
+          localStorage.setItem("isAdmin", isAdmin);
 
-          onLogin(jwtToken); // Anropar funktionen onLogin och skickar med jwtToken som argument
-          navigate("/Main"); // Navigerar till sidan Main
+          onLogin(jwtToken);
+          navigate("/Main");
 
           console.log("Token:", jwtToken);
         }
       } else {
-        setLoginError("Misslyckat inloggningsförsök. Försök igen");
+        setLoginError("Failed login attempt. Please try again.");
       }
 
-      if (rememberMe) { // Om rememberMe är true så körs koden nedan
-        localStorage.setItem("rememberedUsername", data.username); // Sparar username i localStorage
-        localStorage.setItem("rememberedPassword", data.password); // Sparar password i localStorage
+      if (rememberMe) {
+        localStorage.setItem("rememberedUsername", data.username);
+        localStorage.setItem("rememberedPassword", data.password);
       } else {
-        localStorage.removeItem("rememberedUsername"); // Tar bort rememberedUsername från localStorage
-        localStorage.removeItem("rememberedPassword"); // Tar bort rememberedPassword från localStorage
+        localStorage.removeItem("rememberedUsername");
+        localStorage.removeItem("rememberedPassword");
       }
-    } catch (error) { // Om det blir error när datan ska skickas till API:et så loggas det ut i konsolen
-      console.error("Network error:", error); // Loggar ut error i konsolen
+    } catch (error) {
+      console.error("Network error:", error);
     }
   };
 
@@ -133,7 +116,7 @@ const LoginDetails: React.FC<LoginDetailsProps> = ({ onLogin }) => {
           component="h1"
           variant="h5"
         >
-          Logga in
+          Log In
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div
@@ -149,7 +132,7 @@ const LoginDetails: React.FC<LoginDetailsProps> = ({ onLogin }) => {
                 name="username"
                 control={control}
                 defaultValue=""
-                rules={{ required: "Användarnamn måste vara ifylld" }}
+                rules={{ required: "Username is required" }}
                 render={({ field }) => (
                   <>
                     <TextField
@@ -158,7 +141,7 @@ const LoginDetails: React.FC<LoginDetailsProps> = ({ onLogin }) => {
                         <span
                           style={{ fontSize: "14px", letterSpacing: "0px" }}
                         >
-                          Användarnamn
+                          Username
                         </span>
                       }
                       variant="outlined"
@@ -184,7 +167,7 @@ const LoginDetails: React.FC<LoginDetailsProps> = ({ onLogin }) => {
                 name="password"
                 control={control}
                 defaultValue=""
-                rules={{ required: "Lösenord måste vara ifylld" }}
+                rules={{ required: "Password is required" }}
                 render={({ field }) => (
                   <>
                     <TextField
@@ -193,7 +176,7 @@ const LoginDetails: React.FC<LoginDetailsProps> = ({ onLogin }) => {
                         <span
                           style={{ fontSize: "14px", letterSpacing: "0px" }}
                         >
-                          Lösenord
+                          Password
                         </span>
                       }
                       type={showPassword ? "text" : "password"}
@@ -249,7 +232,7 @@ const LoginDetails: React.FC<LoginDetailsProps> = ({ onLogin }) => {
                     letterSpacing: "0px",
                   }}
                 >
-                  Kom ihåg mig
+                  Remember me
                 </span>
               }
             />
@@ -266,7 +249,7 @@ const LoginDetails: React.FC<LoginDetailsProps> = ({ onLogin }) => {
                 marginTop: "10px",
               }}
             >
-              <span>Logga in</span>
+              <span>Log In</span>
             </Button>
           </div>
           <Link
@@ -280,7 +263,7 @@ const LoginDetails: React.FC<LoginDetailsProps> = ({ onLogin }) => {
               color: "rgb(1, 103, 255)",
             }}
           >
-            Registrera ett nytt konto
+            Register a new account
           </Link>
           {loginError && (
             <div
@@ -293,7 +276,7 @@ const LoginDetails: React.FC<LoginDetailsProps> = ({ onLogin }) => {
         </form>
       </div>
     </>
-  );
+  );  
 };
 
 export default LoginDetails;
